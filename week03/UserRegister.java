@@ -8,7 +8,7 @@ public class UserRegister {
     public static void main(String[] args) {
 
         System.out.println("================");
-        System.out.println("화원등록");
+        System.out.println("회원등록");
         System.out.println("================");
 
         boolean register = false;
