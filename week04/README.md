@@ -1,4 +1,4 @@
-# 5주차 - Java Next Level (객체지향 + 예외처리)
+# 4주차 - Java Next Level (객체지향 + 예외처리)
 
 ## 학습 내용
 - Java Next Level - 객체지향 (1) 객체 지향 개념
