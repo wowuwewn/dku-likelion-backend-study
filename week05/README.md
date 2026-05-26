@@ -27,9 +27,30 @@
 - 처음 `localhost:8080` 접속했을 때 Whitelabel Error Page가 뜨는 건 서버는 켜졌는데 연결된 URL이 없어서 → Controller 만들고 나서 사라짐
 
 ### MVC 흐름
-- `POST /api/products` 요청 → `ProductController`가 받음 → `ProductService`에 처리 위임 → `ProductRepository`가 DB에 저장
-- 역할을 나눠두면 예를 들어 저장 방식을 바꿀 때 Controller는 건드리지 않고 Repository만 수정하면 됨
-- `@Autowired` → 직접 `new`로 객체를 만들지 않아도 Spring이 알아서 주입해줌
+- Controller → Service → Repository → DB 순서로 요청이 처리됨
+- 카페로 비유하면: 손님(사용자) → 홀직원(Controller) → 주방(Service) → 식재료창고(Repository) → DB
+- "책상 주문" 요청이 들어오면 Controller가 받아서 Service에 넘기고, Service가 실제 저장 처리를 Repository에 시킴
+- 역할이 나뉘어 있어서 DB 저장 방식을 바꿔야 할 때 Controller나 Service는 건드리지 않고 Repository만 수정하면 됨
+- `@Autowired` → 각 클래스 안에서 직접 `new`로 객체를 만들지 않아도 Spring이 알아서 연결해줌
+
+### Postman으로 API 테스트
+- Postman = 브라우저 대신 API 요청을 직접 보낼 수 있는 툴 (GET 외에 POST, PUT, DELETE도 테스트 가능)
+
+```
+① 생성 (POST)
+POST http://localhost:8080/api/products
+Body: { "productName": "책상", "price": 140000 }
+
+② 조회 (GET)
+GET http://localhost:8080/api/products/1
+
+③ 수정 (PUT)
+PUT http://localhost:8080/api/products/1
+Body: { "productName": "책상 2", "price": 200000 }
+
+④ 삭제 (DELETE)
+DELETE http://localhost:8080/api/products/1
+```
 
 ### H2 Console
 - 앱 실행 중에만 데이터 유지, 끄면 초기화 → DB 따로 설치 없이 테스트할 때 빠르게 쓰는 용도
