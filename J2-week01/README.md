@@ -45,6 +45,12 @@ com.ll
 - Stream의 `filter`, `findFirst`, `orElse`
 - 메서드 분리와 `App`·`TodoController`·`SystemController`의 책임 분리
 
+## 배운 점
+
+- 기능이 늘어날수록 `App`에 모두 작성하지 않고 Controller별로 역할을 나누는 이유를 알게 됐다.
+- `this.content = content`처럼 객체의 필드와 매개변수를 구분하는 부분을 이번 실습을 통해 다시 확인했다.
+- `removeIf`와 Stream을 사용해봤지만 아직 익숙하지 않아 이후에 다시 복습할 예정이다.
+
 ## 실행 예시
 
 ```text
