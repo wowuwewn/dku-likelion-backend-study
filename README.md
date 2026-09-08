@@ -4,12 +4,14 @@
 주차별 강의 학습 정리와 실습 코드를 관리합니다.
 
 ## 🛠️ 기술 스택
-- **Language** : Java 17
-- **Framework** : Spring Boot 2.7.8
+- **Language** : Java
+- **Framework** : Spring Boot
 - **DB / ORM** : H2 Database, Spring Data JPA
 - **Tool** : IntelliJ IDEA, Postman, Git/GitHub
 
 ## 📚 주차별 학습 정리
+
+### 1학기
 
 | 주차 | 주제 | 핵심 내용 | 바로가기 |
 |------|------|-----------|----------|
@@ -18,6 +20,12 @@
 | 4주차 | Java Next Level | 객체지향(클래스·생성자·상속·오버로딩·인터페이스 등) + 예외처리 | [week04](./week04) |
 | 5주차 | Web & Spring Boot | 웹 동작 원리, Spring Boot 구조, Product CRUD API 구현 | [week05](./week05) |
 | 6주차 | 파이널 프로젝트 | Spring Boot로 Books CRUD API 설계 및 구현 (POST/GET/PUT/DELETE) | [week06](./week06) |
+
+### 2학기
+
+| 주차 | 주제 | 핵심 내용 | 바로가기 |
+|------|------|-----------|----------|
+| 1주차 | 자바로 구현하는 간단한 할 일 관리 서비스 | 콘솔 입력, Todo 객체 관리, List, 할 일 추가·조회·수정·삭제, Controller 책임 분리 | [J2-week01](./J2-week01) |
 
 ## 🌱 스터디를 통해 배운 것
 - Java 기초 문법부터 객체지향, 예외처리까지 단계별로 학습
