@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 public class ComponentA {
     private final com.ll.demo01.ComponentB componentB;
     private final com.ll.demo01.ComponentC componentC;
-    private final com.ll.demo01.ComponentC componentD;
-    private final com.ll.demo01.ComponentC componentE;
+    private final com.ll.demo01.ComponentD componentD;
+    private final com.ll.demo01.ComponentE componentE;
 
     public String action() {
         return "ComponentA action / " + componentB.getAction();
