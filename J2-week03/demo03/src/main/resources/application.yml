@@ -1,0 +1,9 @@
+server:
+  port: 8070
+spring:
+  profiles:
+    active: dev
+    include: secret
+custom:
+  site:
+    name: "My Site"

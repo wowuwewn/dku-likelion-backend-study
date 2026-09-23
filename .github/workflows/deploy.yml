@@ -1,0 +1,31 @@
+name: Fly Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'J2-week03/demo03/**'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: application-secret.yml 생성
+        env:
+          APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
+        run: |
+          echo "$APPLICATION_SECRET" > J2-week03/demo03/src/main/resources/application-secret.yml
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Fly.io 배포
+        working-directory: J2-week03/demo03
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
