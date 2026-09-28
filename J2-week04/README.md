@@ -34,8 +34,6 @@ DBeaver에서 게시물을 추가·조회·수정·삭제하고, 제약조건을
 | [article-crud.sql](./article-crud.sql) | DB 확인 → article 생성 → id와 regDate를 추가하면서 CRUD |
 | [constraints.sql](./constraints.sql) | NULL·중복 id 정리 → 제약조건 → 칼럼 변경 → 조건 조회 |
 | [inner-join.sql](./inner-join.sql) | deptName → deptId 전환 → JOIN 조건과 별칭 → 사원 추가 |
-| [week04-article-constraints-practice.sql](./week04-article-constraints-practice.sql) | DBeaver에서 작성한 a1 / a2 실습 원본 |
-| [week04-inner-join-practice.sql](./week04-inner-join-practice.sql) | DBeaver에서 작성한 a5 실습 원본 |
 
 정리한 SQL은 위 순서로 각 파일의 처음부터 실행한다. 파일마다 해당 실습 DB를 삭제하고 다시 만들므로 `a1`, `a2`, `a5`에 보관할 데이터가 없는 실습 환경에서 사용한다. `mysql.user` 구조 조회에는 읽기 권한이 필요하다. 실패 SQL은 주석으로 남겼고, 다시 확인할 때는 해당 단계에서 한 문장씩 실행하면 된다.
 
@@ -89,7 +87,7 @@ LIMIT 1;
 
 칼럼만 추가했을 때 기존 행의 id는 `NULL`이었다. `IS NULL`인 행을 1로 바꾸자 두 행이 모두 1이 됐고, `LIMIT 1`로 한 행만 2로 바꿨다. 아래 화면은 NULL 상태가 아니라 번호를 채운 뒤의 결과다.
 
-![id를 추가하고 기존 두 행의 번호를 2와 1로 채운 결과](./images/02_article_add_id.png)
+![id를 추가하고 기존 두 행의 번호를 2와 1로 채운 결과](./images/01_article_add_id.png)
 
 `LIMIT 1`은 한 행만 바꾼다는 뜻이고, 정렬 조건이 없으면 어느 행인지는 보장하지 않는다. 이후에는 `WHERE id = 2`처럼 번호로 삭제할 대상을 지정했다. 아직 이 단계에는 번호 중복을 막거나 자동으로 번호를 붙이는 제약조건이 없다.
 
@@ -124,7 +122,7 @@ WHERE id = 3;
 | 수정 | 기존 id를 0으로 채운 뒤 NOT NULL 적용 |
 | 결과 | NULL은 막았지만 두 행의 번호가 같은 문제는 남음 |
 
-![기존 NULL 값 때문에 NOT NULL 적용이 실패한 화면](./images/04_not_null_error.png)
+![기존 NULL 값 때문에 NOT NULL 적용이 실패한 화면](./images/02_not_null_error.png)
 
 `NULL`은 값이 없다는 상태다. 0이나 빈 문자열과 다르고, 확인할 때도 `= NULL` 대신 `IS NULL`을 사용한다. 제약조건을 추가하려면 새 데이터뿐 아니라 이미 들어 있는 데이터도 조건을 만족해야 했다.
 
@@ -137,7 +135,7 @@ WHERE id = 3;
 | 수정 | 한 행은 1, 나머지 행은 2로 변경 |
 | 결과 | PRIMARY KEY를 적용한 뒤 AUTO_INCREMENT 추가 |
 
-![중복된 id 0 때문에 PRIMARY KEY 적용이 실패한 화면](./images/05_primary_key_duplicate_error.png)
+![중복된 id 0 때문에 PRIMARY KEY 적용이 실패한 화면](./images/03_primary_key_duplicate_error.png)
 
 > NULL 정리 → NOT NULL → 중복 번호 정리 → PRIMARY KEY → AUTO_INCREMENT
 
@@ -159,7 +157,7 @@ WHERE id = 3;
 
 기존 행의 빈 nickname은 `무명`으로 채웠다. 최종 구조에서 id는 `int unsigned`, `PRI`, `auto_increment`이고 모든 칼럼의 `Null`이 `NO`인 것을 확인했다.
 
-![nickname과 hit까지 추가한 article의 최종 제약조건 구조](./images/07_article_constraints_structure.png)
+![nickname과 hit까지 추가한 article의 최종 제약조건 구조](./images/04_article_constraints_structure.png)
 
 ## 조회 조건
 
@@ -226,7 +224,7 @@ ON emp.deptId = dept.id;
 
 `ON`으로 사원의 부서 번호와 부서 테이블의 id가 같은 행만 연결했다. 아래 결과에서는 deptId와 dept.id가 일치하고, 사원 3명에게 올바른 부서명이 붙는다. INNER JOIN은 연결 조건을 만족하는 조합만 보여준다.
 
-![ON 조건을 적용해 소속 부서가 일치하는 사원 3명을 조회한 결과](./images/13_inner_join_with_on.png)
+![ON 조건을 적용해 소속 부서가 일치하는 사원 3명을 조회한 결과](./images/05_inner_join_with_on.png)
 
 ### 별칭과 최종 조회
 
@@ -245,7 +243,7 @@ ON E.deptId = D.id
 ORDER BY `부서명`, `사원명`;
 ```
 
-![김영희와 IT부서의 김철수까지 추가한 최종 JOIN 결과 5행](./images/15_inner_join_added_employees.png)
+![김영희와 IT부서의 김철수까지 추가한 최종 JOIN 결과 5행](./images/06_inner_join_added_employees.png)
 
 ## 연결과 SQL 작성 중 겪은 문제
 
