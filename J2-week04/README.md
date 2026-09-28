@@ -25,7 +25,7 @@ DBeaver에서 게시물을 추가·조회·수정·삭제하고, 제약조건을
   → 4주차: 데이터를 지속적으로 관리하기 위한 Database / MySQL / SQL 기초
 ```
 
-입력 방식이 콘솔에서 HTTP 요청으로 바뀌어도 데이터를 추가·조회·수정·삭제한다는 흐름은 같았다. 이번에는 그 작업을 Java 리스트 대신 DB 테이블에서 SQL로 해봤다. 배포만으로 데이터가 유지되지는 않았기 때문에 저장 방식도 따로 배워야 했다.
+콘솔에서 HTTP 요청으로 바뀌어도 추가·조회·수정·삭제 흐름은 같았다. 이번에는 Java 리스트 대신 DB 테이블에서 SQL로 해봤다. 배포만으로 데이터가 유지되지는 않아 저장 방식도 따로 배워야 했다.
 
 ## 실습 파일
 
@@ -35,7 +35,9 @@ DBeaver에서 게시물을 추가·조회·수정·삭제하고, 제약조건을
 | [constraints.sql](./constraints.sql) | NULL·중복 id 정리 → 제약조건 → 칼럼 변경 → 조건 조회 |
 | [inner-join.sql](./inner-join.sql) | deptName → deptId 전환 → JOIN 조건과 별칭 → 사원 추가 |
 
-정리한 SQL은 위 순서로 각 파일의 처음부터 실행한다. 파일마다 해당 실습 DB를 삭제하고 다시 만들므로 `a1`, `a2`, `a5`에 보관할 데이터가 없는 실습 환경에서 사용한다. `mysql.user` 구조 조회에는 읽기 권한이 필요하다. 실패 SQL은 주석으로 남겼고, 다시 확인할 때는 해당 단계에서 한 문장씩 실행하면 된다.
+정리한 SQL은 위 순서로 각 파일의 처음부터 실행한다. 각 파일은 해당 실습 DB를 삭제하고 다시 만들므로 `a1`, `a2`, `a5`에 보관할 데이터가 없는 환경에서 사용한다.
+
+`mysql.user` 구조 조회에는 읽기 권한이 필요하다. 주석으로 남긴 실패 SQL은 해당 단계에서 한 문장씩 실행해 확인할 수 있다.
 
 ## Database / MySQL / DBeaver
 
@@ -49,11 +51,11 @@ DBeaver에서 게시물을 추가·조회·수정·삭제하고, 제약조건을
 | Row | 게시물 한 개, 사원 한 명에 해당하는 행 |
 | Column | `id`, `title`, `body`처럼 각 행이 가지는 항목 |
 
-DBeaver 자체가 DB는 아니다. DBeaver에서 SQL을 실행하면 연결된 MySQL이 처리하고, 그 결과를 DBeaver에서 확인한다. `SHOW DATABASES`로 DB 목록, `SHOW TABLES`로 선택한 DB의 테이블 목록, `DESC article`로 칼럼 구조를 확인했다.
+`SHOW DATABASES`로 DB 목록, `SHOW TABLES`로 선택한 DB의 테이블 목록, `DESC article`로 칼럼 구조를 확인했다. DBeaver에서 보낸 SQL은 MySQL이 처리하고, 결과는 DBeaver에서 확인했다.
 
 ## article CRUD
 
-[article-crud.sql](./article-crud.sql)은 제목과 내용만 있는 테이블로 시작했다. `VARCHAR(100)`은 최대 100자의 문자열, `TEXT`는 긴 본문을 담는 데 사용했다.
+**같은 내용의 게시물을 구분하려고 제목·내용만 있는 테이블에 id를 추가했다.** [article-crud.sql](./article-crud.sql)은 그 변경 과정을 담았다. `VARCHAR(100)`은 최대 100자의 문자열, `TEXT`는 긴 본문을 담는 데 사용했다.
 
 ```sql
 CREATE TABLE article (
@@ -71,7 +73,7 @@ CREATE TABLE article (
 
 ### id가 필요한 이유
 
-같은 제목과 내용을 두 번 넣으니 어느 행이 어떤 게시물인지 구분하기 어려웠다. 테이블을 지우고 다시 만드는 대신 `ALTER TABLE`로 id를 맨 앞에 추가했다.
+같은 제목과 내용을 두 번 넣은 뒤, 테이블을 다시 만들지 않고 `ALTER TABLE`로 id를 맨 앞에 추가했다.
 
 ```sql
 ALTER TABLE article ADD COLUMN id INT FIRST;
@@ -85,11 +87,13 @@ SET id = 2
 LIMIT 1;
 ```
 
-칼럼만 추가했을 때 기존 행의 id는 `NULL`이었다. `IS NULL`인 행을 1로 바꾸자 두 행이 모두 1이 됐고, `LIMIT 1`로 한 행만 2로 바꿨다. 아래 화면은 NULL 상태가 아니라 번호를 채운 뒤의 결과다.
+칼럼만 추가했을 때 기존 행의 id는 `NULL`이었다. `IS NULL`인 행을 1로 바꾸자 두 행 모두 1이 됐고, `LIMIT 1`로 한 행만 2로 바꿨다. 아래는 번호를 채운 뒤의 결과다.
 
 ![id를 추가하고 기존 두 행의 번호를 2와 1로 채운 결과](./images/01_article_add_id.png)
 
-`LIMIT 1`은 한 행만 바꾼다는 뜻이고, 정렬 조건이 없으면 어느 행인지는 보장하지 않는다. 이후에는 `WHERE id = 2`처럼 번호로 삭제할 대상을 지정했다. 아직 이 단계에는 번호 중복을 막거나 자동으로 번호를 붙이는 제약조건이 없다.
+> `LIMIT 1`은 변경할 행 수만 제한한다. 정렬 조건이 없으면 어느 행인지는 보장하지 않는다.
+
+이후 `WHERE id = 2`로 삭제할 대상을 지정했다. 이 단계에는 아직 번호 중복을 막거나 자동으로 번호를 붙이는 제약조건이 없다.
 
 ### 작성일 추가
 
@@ -107,11 +111,11 @@ SET regDate = NOW()
 WHERE id = 3;
 ```
 
-`DATETIME`은 날짜와 시간을 저장하는 자료형이고, `NOW()`는 실행 시점의 날짜와 시간을 반환하는 함수다. 칼럼을 추가하는 것과 기존 데이터에 값을 넣는 것은 별도 작업이었다.
+`DATETIME`은 날짜와 시간을 저장하고, `NOW()`는 실행 시점의 날짜와 시간을 반환한다. 칼럼 추가와 기존 데이터 채우기는 별도 작업이었다.
 
 ## 제약조건과 칼럼 변경
 
-[constraints.sql](./constraints.sql)에서는 id를 생략한 게시물 두 개를 넣고 시작했다. 값을 넣지 않아도 저장되는 상태에서 하나씩 제한을 추가했다.
+**기존 행의 NULL과 중복 id를 정리한 뒤 제약조건을 적용했다.** [constraints.sql](./constraints.sql)에서는 id를 생략한 게시물 두 개를 넣고 시작했다.
 
 ### NULL 때문에 NOT NULL 적용 실패
 
@@ -124,7 +128,7 @@ WHERE id = 3;
 
 ![기존 NULL 값 때문에 NOT NULL 적용이 실패한 화면](./images/02_not_null_error.png)
 
-`NULL`은 값이 없다는 상태다. 0이나 빈 문자열과 다르고, 확인할 때도 `= NULL` 대신 `IS NULL`을 사용한다. 제약조건을 추가하려면 새 데이터뿐 아니라 이미 들어 있는 데이터도 조건을 만족해야 했다.
+`NULL`은 0이나 빈 문자열과 달리 값이 없는 상태다. `= NULL` 대신 `IS NULL`로 확인한다. **제약조건을 추가하려면 기존 데이터도 조건을 만족해야 했다.**
 
 ### 중복 id 때문에 PRIMARY KEY 적용 실패
 
@@ -133,7 +137,7 @@ WHERE id = 3;
 | 증상 | `ADD PRIMARY KEY(id)` 실행 시 `Duplicate entry '0'` |
 | 원인 | 두 행의 id가 모두 0 |
 | 수정 | 한 행은 1, 나머지 행은 2로 변경 |
-| 결과 | PRIMARY KEY를 적용한 뒤 AUTO_INCREMENT 추가 |
+| 결과 | PRIMARY KEY와 AUTO_INCREMENT 적용 |
 
 ![중복된 id 0 때문에 PRIMARY KEY 적용이 실패한 화면](./images/03_primary_key_duplicate_error.png)
 
@@ -146,7 +150,7 @@ WHERE id = 3;
 | `AUTO_INCREMENT` | 새 행을 넣을 때 id를 직접 계산하지 않아도 번호 부여 |
 | `UNSIGNED` | id와 조회수에 음수를 저장하지 않도록 범위 지정 |
 
-이후 `regDate`, `title`, `body`에도 NOT NULL을 적용했다. 작성자를 추가하면서 칼럼 이름과 위치도 바꿨다.
+이후 `regDate`, `title`, `body`에도 NOT NULL을 적용하고 작성자 칼럼의 이름과 위치를 바꿨다.
 
 | SQL | 실제 변경 |
 | --- | --- |
@@ -171,13 +175,15 @@ WHERE id = 3;
 | `WHERE nickname != '무명' AND hit <= 50` | 무명이 아니면서 조회수 50 이하 |
 | `WHERE nickname = '무명' OR hit >= 55` | 무명이거나 조회수 55 이상 |
 
-`WHERE`는 행을 고르는 조건, `ORDER BY`는 정렬, `LIMIT`은 결과 개수 제한이다. `AND`는 두 조건을 모두, `OR`는 하나 이상을 만족해야 한다. 조회수 10인 게시물이 두 개 있으므로 `ORDER BY hit DESC`만으로는 같은 조회수 사이의 순서까지 정해지지 않는다.
+`WHERE`는 행 선택, `ORDER BY`는 정렬, `LIMIT`은 결과 개수 제한에 사용했다. `AND`는 두 조건을 모두, `OR`는 하나 이상을 만족한다. 조회수 10인 게시물이 두 개라서 같은 조회수 사이의 순서는 정해지지 않는다.
 
 ## 부서와 사원 테이블 / INNER JOIN
 
+**부서명을 사원마다 저장하면 이름을 바꿀 때 여러 행을 고쳐야 했다.** 사원에는 부서 번호를 저장하고, 조회할 때 `ON`으로 부서 테이블과 연결했다.
+
 ### deptName을 직접 저장했을 때의 문제
 
-[inner-join.sql](./inner-join.sql)에서는 부서 `dept`와 사원 `emp`를 만들었다. `dept.name`에는 UNIQUE를 붙여 같은 부서명을 중복 등록하지 않게 했다. 처음에는 emp에도 부서명을 직접 저장했다.
+[inner-join.sql](./inner-join.sql)에서는 부서 `dept`와 사원 `emp`를 만들었다. `dept.name`에는 중복을 막는 UNIQUE를 붙였다. 처음에는 emp에도 부서명을 직접 저장했다.
 
 | 사원 | emp.deptName |
 | --- | --- |
@@ -185,14 +191,14 @@ WHERE id = 3;
 | 홍길순 | 홍보 |
 | 임꺽정 | 기획 |
 
-홍보를 마케팅으로 바꾸려면 `dept.name`뿐 아니라 두 사원의 `emp.deptName`도 수정해야 했다. dept만 수정한 상태에서는 두 테이블의 부서명이 달랐다.
+홍보를 마케팅으로 바꿀 때 dept만 수정하니 두 테이블의 부서명이 달라졌다. 두 사원의 `emp.deptName`도 수정해야 했다.
 
 ```sql
 UPDATE dept SET `name` = '마케팅' WHERE `name` = '홍보';
 UPDATE emp SET deptName = '마케팅' WHERE deptName = '홍보';
 ```
 
-부서명이 바뀔 때마다 여러 행을 수정해야 해서, 두 테이블을 다시 홍보로 복원한 뒤 사원 쪽에는 부서 번호를 저장하도록 바꿨다.
+두 테이블을 홍보로 복원한 뒤, 사원 쪽에는 부서 번호를 저장하도록 바꿨다.
 
 ```sql
 ALTER TABLE emp ADD COLUMN deptId INT UNSIGNED NOT NULL;
@@ -201,7 +207,7 @@ UPDATE emp SET deptId = 2 WHERE deptName = '기획';
 ALTER TABLE emp DROP COLUMN deptName;
 ```
 
-먼저 기존 이름을 번호로 옮기고 나서 deptName을 삭제했다. 이후 `dept.name`만 마케팅으로 바꿔도 사원의 소속 번호 1은 그대로 유지된다.
+기존 이름을 번호로 옮긴 뒤 deptName을 삭제했다. 이제 `dept.name`만 마케팅으로 바꿔도 사원의 소속 번호 1은 그대로다.
 
 > deptId를 추가했다고 DB가 자동으로 dept와 연결하는 것은 아니다. 이번 실습에서는 deptId에 dept.id 값을 저장해 관계를 표현했고, FOREIGN KEY 제약조건은 선언하지 않았다.
 
@@ -213,7 +219,9 @@ FROM emp
 INNER JOIN dept;
 ```
 
-MySQL에서는 이 SQL이 실행되지만, 당시 사원 3명과 부서 2개의 모든 조합인 6행이 나온다. 홍길동에게 기획이 붙고 임꺽정에게 마케팅이 붙는 등 실제 소속과 다른 조합도 포함된다. 문법 오류가 없어도 원하는 결과인지는 따로 확인해야 했다.
+MySQL에서는 실행되지만 사원 3명과 부서 2개의 모든 조합인 6행이 나온다. 홍길동-기획, 임꺽정-마케팅처럼 잘못된 소속도 포함된다.
+
+> SQL이 실행됐어도 결과가 올바른지는 확인해야 했다.
 
 ```sql
 SELECT emp.*, dept.id, dept.name AS `부서명`
@@ -222,15 +230,15 @@ INNER JOIN dept
 ON emp.deptId = dept.id;
 ```
 
-`ON`으로 사원의 부서 번호와 부서 테이블의 id가 같은 행만 연결했다. 아래 결과에서는 deptId와 dept.id가 일치하고, 사원 3명에게 올바른 부서명이 붙는다. INNER JOIN은 연결 조건을 만족하는 조합만 보여준다.
+`ON`으로 `emp.deptId`와 `dept.id`가 같은 행만 연결했다. INNER JOIN 결과, 아래처럼 사원 3명에게 올바른 부서명이 붙는다.
 
 ![ON 조건을 적용해 소속 부서가 일치하는 사원 3명을 조회한 결과](./images/05_inner_join_with_on.png)
 
 ### 별칭과 최종 조회
 
-칼럼에는 `AS`로 사원번호·사원명·입사일·부서명이라는 출력 이름을 붙였다. 테이블도 `emp AS E`, `dept AS D`로 줄여 썼다. `DATE()`로 작성 시각에서 날짜 부분만 보여주고 실습에서는 이를 입사일로 표시했다.
+`AS`로 출력 칼럼명을 사원번호·사원명·입사일·부서명으로 바꾸고, 테이블도 `emp AS E`, `dept AS D`로 줄였다. `DATE()`로 작성 시각의 날짜 부분만 입사일로 표시했다.
 
-기획부서 번호 2를 확인해 김영희를 추가하고, IT부서를 만든 뒤 번호 3으로 김철수를 추가했다. 마지막에는 아래 SQL로 5명의 소속을 조회했다.
+기획부서 번호가 2임을 확인하고 김영희를 추가했다. IT부서를 만든 뒤 번호 3으로 김철수를 추가하고, 아래 SQL로 5명의 소속을 조회했다.
 
 ```sql
 SELECT E.id AS `사원번호`,
@@ -249,7 +257,7 @@ ORDER BY `부서명`, `사원명`;
 
 ### MySQL / DBeaver 연결
 
-root 계정으로 MySQL에 접속하는 단계에서 인증 문제가 있었다. MySQL 서버에 접속하는 계정 인증과 DBeaver의 드라이버 설정을 구분해서 확인해야 했다.
+root 계정으로 접속할 때 인증 문제가 있었다. 계정 인증과 DBeaver 드라이버 설정을 구분해 확인해야 했다.
 
 | 항목 | 내용 |
 | --- | --- |
@@ -258,7 +266,7 @@ root 계정으로 MySQL에 접속하는 단계에서 인증 문제가 있었다.
 | 수정 | DBeaver 연결의 Driver properties에서 `allowPublicKeyRetrieval=true` 설정 |
 | 결과 | 연결 후 SQL 실습 진행 |
 
-이 옵션은 서버에서 RSA 공개키를 가져오도록 허용하는 설정이다. root 비밀번호를 바꾸는 옵션은 아니다. 이번 로컬 실습의 연결 설정으로 기록했다. 옵션의 의미는 [MySQL Connector/J 문서](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html)에서도 확인할 수 있다.
+`allowPublicKeyRetrieval=true`는 이번 로컬 실습에서 서버의 RSA 공개키를 가져오도록 허용한 설정이며, root 비밀번호를 바꾸지 않는다. [MySQL Connector/J 문서](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html)에서도 옵션의 의미를 확인할 수 있다.
 
 ### DESC 'user' 오류
 
@@ -270,7 +278,7 @@ root 계정으로 MySQL에 접속하는 단계에서 인증 문제가 있었다.
 DESC `user`;
 ```
 
-`'제목'`처럼 작은따옴표는 값에 사용하고, 백틱은 테이블명이나 칼럼명을 감쌀 때 사용한다. `DESC`에는 조회할 테이블 이름이 필요했기 때문에 따옴표를 바꿔 해결했다.
+작은따옴표는 `'제목'` 같은 값에, 백틱은 테이블명·칼럼명에 사용한다. `DESC`에는 테이블 이름이 필요하므로 백틱으로 고쳤다.
 
 ## 이번 주 핵심
 
