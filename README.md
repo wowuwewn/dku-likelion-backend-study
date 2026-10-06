@@ -29,6 +29,7 @@
 | 2주차 | 스프링부트로 구현하는 ‘URL 단축 서비스’ | Controller와 JSON 응답, Todo 관리, URL 등록·조회·리다이렉트 | [J2-week02](./J2-week02) |
 | 3주차 | fly.io 로 서비스 배포하기 | Docker, Fly.io 배포, 환경별 Profile, GitHub Actions 자동 배포, Secrets | [J2-week03](./J2-week03) |
 | 4주차 | 데이터베이스 | MySQL, DBeaver, SQL CRUD, 제약조건, 테이블 관계, INNER JOIN | [J2-week04](./J2-week04) |
+| 5주차 | Spring Data JPA로 영속성 부여 | Entity / Repository / Service, 트랜잭션·Auditing, 작성자 관계, URL 단축 서비스 DB 저장 | [J2-week05](./J2-week05) |
 
 ## 🌱 스터디를 통해 배운 것
 - Java 기초 문법부터 객체지향, 예외처리까지 단계별로 학습
