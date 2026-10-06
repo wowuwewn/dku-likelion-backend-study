@@ -3,7 +3,7 @@
 2주차의 URL 단축 서비스는 `ArrayList`에 저장했고, 3주차에는 배포 후 재시작하면 데이터가 사라졌다.<br>
 4주차에 SQL로 MySQL을 다룬 데 이어, 이번에는 Java 객체와 MySQL을 JPA로 연결해 기존 서비스를 DB에 저장하는 구조로 바꿨다.
 
-학습 범위는 [강의 페이지의 Chapter 06](https://www.slog.gg/p/13485#f), 제공된 「백엔드 완전정복 | 실습으로 배우는 Spring Boot」 PDF의 Chapter 06(78~93쪽), [공식 강의 GitHub](https://github.com/jhs512/demo03-2024)의 06-01~06-20이다. 아래 설명은 현재 `J2-week05`의 최종 코드와 실제 실행·DB 조회 결과를 기준으로 정리했다.
+학습 순서는 [강의 페이지의 Chapter 06](https://www.slog.gg/p/13485#f)을 따랐다. 실습 범위는 06-01–06-20(강의 PDF 78–93쪽)이다. 아래 내용은 현재 `J2-week05`의 최종 코드와 실제 실행·DB 조회 결과를 기준으로 정리했다.
 
 ## 이번 주 한눈에 보기
 
@@ -94,7 +94,7 @@ private Long id;
 
 `findById()`는 결과가 없을 수도 있어 `Optional<Article>`을 반환하고, `findAll()`은 여러 건을 담는 `List<Article>`을 반환한다.
 
-06-10에서는 메서드 이름으로 조건 조회를 정의하는 방식도 학습했다. 최종 `ArticleRepository`는 공식 06-20 코드처럼 기본 기능만 사용한다. 현재 조건 조회의 예는 [MemberRepository](./src/main/java/com/ll/demo03/MemberRepository.java)에 있다.
+06-10에서는 메서드 이름으로 조건 조회를 정의하는 방식도 학습했다. 최종 `ArticleRepository`는 기본 CRUD 기능만 사용한다. 현재 조건 조회의 예는 [MemberRepository](./src/main/java/com/ll/demo03/MemberRepository.java)에 있다.
 
 ```java
 Optional<Member> findByUsername(String username);
@@ -353,12 +353,6 @@ member.id
 SurlController → Rq에서 회원 참조 확보
   → SurlService → SurlRepository → JPA / Hibernate → MySQL
 ```
-
-## 강의 코드와 현재 프로젝트
-
-최종 구조는 [공식 06-20 코드](https://github.com/jhs512/demo03-2024/tree/4211d41f66a707b1111bcc2b7fe8cce8cd0e95f9)를 기준으로 확인했다. 강의 원본의 `domain/...` 패키지 대신 기존 `com.ll.demo03`에 Entity·Service·Repository를 유지했고, 공통 클래스는 `global` 아래에 두었다. `GenerationType.IDENTITY`를 명시해 사용했으며 Member의 기존 username UNIQUE 제약도 유지했다.
-
-검증 대상은 로컬 8090 서버와 `surl_dev` DB다. Fly.io 배포 환경의 DB 연동은 이번 실습 범위에 포함되지 않는다.
 
 ## 이번 주 한 줄 정리
 
