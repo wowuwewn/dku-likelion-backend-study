@@ -1,0 +1,175 @@
+{
+  "info": {
+    "name": "Chapter 08 회원가입",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8090"
+    }
+  ],
+  "item": [
+    {
+      "name": "정상 가입: 201",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/members",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"postman-{{$guid}}\",\"password\":\"example-only\",\"nickname\":\"API example\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Response envelope\", () => { const b = pm.response.json(); pm.expect(b).to.have.all.keys(\"resultCode\",\"statusCode\",\"msg\",\"data\"); pm.expect(b.resultCode).to.eql(\"201-1\"); pm.expect(b.statusCode).to.eql(201); });",
+              "pm.test(\"No password field\", () => pm.expect(pm.response.text()).not.to.include('\"password\"'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "중복 아이디: 400",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/members",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"user1\",\"password\":\"example-only\",\"nickname\":\"API example\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Response envelope\", () => { const b = pm.response.json(); pm.expect(b).to.have.all.keys(\"resultCode\",\"statusCode\",\"msg\",\"data\"); pm.expect(b.resultCode).to.eql(\"400-1\"); pm.expect(b.statusCode).to.eql(400); });",
+              "pm.test(\"No password field\", () => pm.expect(pm.response.text()).not.to.include('\"password\"'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "nickname 누락: 400",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/members",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"postman-missing\",\"password\":\"example-only\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Response envelope\", () => { const b = pm.response.json(); pm.expect(b).to.have.all.keys(\"resultCode\",\"statusCode\",\"msg\",\"data\"); pm.expect(b.resultCode).to.eql(\"400-NotBlank\"); pm.expect(b.statusCode).to.eql(400); });",
+              "pm.test(\"No password field\", () => pm.expect(pm.response.text()).not.to.include('\"password\"'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "잘못된 JSON: 400",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/members",
+        "body": {
+          "mode": "raw",
+          "raw": "{",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Response envelope\", () => { const b = pm.response.json(); pm.expect(b).to.have.all.keys(\"resultCode\",\"statusCode\",\"msg\",\"data\"); pm.expect(b.resultCode).to.eql(\"400-JSON\"); pm.expect(b.statusCode).to.eql(400); });",
+              "pm.test(\"No password field\", () => pm.expect(pm.response.text()).not.to.include('\"password\"'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET 거부: 405",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/members"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 405\", () => pm.response.to.have.status(405));",
+              "pm.test(\"Response envelope\", () => { const b = pm.response.json(); pm.expect(b).to.have.all.keys(\"resultCode\",\"statusCode\",\"msg\",\"data\"); pm.expect(b.resultCode).to.eql(\"405-1\"); pm.expect(b.statusCode).to.eql(405); });",
+              "pm.test(\"No password field\", () => pm.expect(pm.response.text()).not.to.include('\"password\"'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
