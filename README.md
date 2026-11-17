@@ -3,9 +3,6 @@
 단국대학교 멋쟁이사자처럼 14기 백엔드(Java) 트랙 스터디 기록 레포지토리입니다.
 주차별 강의 학습 정리와 실습 코드를 관리합니다.
 
-**최근 학습 — [2학기 8주차 — 아이디/비밀번호를 포함시킨 인증](./J2-week08/README.md)**<br>
-7주차 회원가입 API에서 교육용 아이디·비밀번호 인증으로 확장했습니다. AuthService 인가·SURL REST CRUD·RequestScope 캐싱을 구현했습니다.
-
 ## 🛠️ 기술 스택
 
 **Languages & Backend** ![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?style=flat-square) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white) ![Gradle](https://img.shields.io/badge/Gradle-02303A?style=flat-square&logo=gradle&logoColor=white) ![Spring Data JPA](https://img.shields.io/badge/Spring%20Data%20JPA-6DB33F?style=flat-square&logo=spring&logoColor=white)<br>
