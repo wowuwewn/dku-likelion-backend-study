@@ -8,10 +8,11 @@
 
 ## 🛠️ 기술 스택
 
-- **Language** : Java
-- **Framework** : Spring Boot
-- **DB / ORM** : PostgreSQL, H2, MySQL, Spring Data JPA
-- **Tool** : IntelliJ IDEA, DBeaver, Postman, Git/GitHub, Docker, AWS CLI, Terraform
+**Languages & Backend** ![Java 21](https://img.shields.io/badge/Java%2021-ED8B00?style=flat-square) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white) ![Gradle](https://img.shields.io/badge/Gradle-02303A?style=flat-square&logo=gradle&logoColor=white) ![Spring Data JPA](https://img.shields.io/badge/Spring%20Data%20JPA-6DB33F?style=flat-square&logo=spring&logoColor=white)<br>
+**Database** ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) ![H2 Database](https://img.shields.io/badge/H2%20Database-09476B?style=flat-square)<br>
+**Tools & Infrastructure** ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ%20IDEA-000000?style=flat-square&logo=intellijidea&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white) ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square) ![Terraform](https://img.shields.io/badge/Terraform-844FBA?style=flat-square&logo=terraform&logoColor=white)
+
+DBeaver·Postman도 실습에 사용했습니다. AWS CLI·Terraform은 기초 개념만 학습했으며, 도구 설치·인프라 구축은 아직 진행 전입니다.
 
 ## 📚 주차별 학습 정리
 
