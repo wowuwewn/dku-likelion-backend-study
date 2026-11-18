@@ -1,4 +1,4 @@
-﻿# 2학기 8주차 — 아이디/비밀번호를 포함시킨 인증
+# 2학기 8주차 — 아이디/비밀번호를 포함시킨 인증
 
 7주차에는 회원가입 요청을 받아 회원을 DB에 저장했다.<br>
 이번에는 저장한 아이디와 비밀번호로 요청한 회원을 확인하고, 본인이 만든 단축 URL만 관리하도록 연결했다.
@@ -19,46 +19,47 @@
 
 ## 회원가입에서 인증·인가로
 
-기존 `POST /api/v1/members`와 `/join` 회원가입은 유지했다.
-가입한 회원은 SURL 요청에 아이디와 비밀번호를 함께 보낸다.
-이전처럼 1번 회원을 고정해서 사용하는 대신, 실제 요청한 회원을 작성자로 연결한다.
+| 단계 | 확인하는 것 | 담당 |
+| --- | --- | --- |
+| 7주차 · 회원가입 | 아이디·비밀번호를 받아 회원 저장 | MemberService |
+| 8주차 · 인증 | 이 요청을 보낸 사람이 누구인가? | Rq |
+| 8주차 · 인가 | 이 회원이 해당 SURL의 작성자인가? | AuthService |
 
-- **인증:** 요청한 사람이 누구인지 확인한다. 아이디로 회원을 찾고 비밀번호를 비교한다.
-- **인가:** 그 회원이 해당 자료를 다룰 수 있는지 확인한다. 요청한 회원과 작성자의 ID를 비교한다.
-
-비밀번호가 맞아도 다른 회원의 SURL을 조회·수정·삭제할 수는 없다.
-인증 실패는 **401**, 소유권이 없으면 **403**, 인증 후 찾은 대상이 없으면 **404**로 응답한다.
-목록도 전체 자료를 공개하지 않고 본인 자료만 ID 역순으로 가져온다.
+기존 `POST /api/v1/members`와 `/join`은 유지했다.
+가입한 회원의 아이디·비밀번호를 매 요청에 보내고, 확인된 회원을 작성자로 사용한다.
+**비밀번호가 맞아도 다른 회원의 자료는 관리할 수 없다.**
 
 ## 요청부터 응답까지
 
-단건 조회를 기준으로 실제 실행 순서는 다음과 같다.
-`Controller → Rq → Service → AuthService → Repository`가 항상 차례대로 실행되는 구조는 아니다.
+`GET /api/v1/surls/{id}` 단건 조회 흐름이다. 위에서 아래로 읽으면 된다.
 
-```text
-GET /api/v1/surls/{id} + 인증 파라미터
-  → ApiV1SurlController가 Rq.getMember() 호출
-  → Rq → MemberService → MemberRepository: 아이디로 회원 조회
-  → Rq: 비밀번호 비교 후 인증한 Member 반환
-  → Controller → SurlService.get(member, id)
-  → SurlRepository.findById(): 대상 SURL 조회
-  → AuthService.checkCanGetSurl(): 작성자 ID와 회원 ID 비교
-  → SurlService: 트랜잭션 안에서 SurlDto 생성
-  → Controller: data.item으로 감싸 RsData 반환
-  → ResponseAspect가 HTTP 상태 반영 → JSON 응답
+```mermaid
+flowchart TD
+    A["Controller: 단건 조회 요청"] --> B["Rq: 아이디로 회원 조회 후 비밀번호 비교"]
+    B --> C{"인증 성공?"}
+    C -- 아니오 --> U["401 · 인증 실패"]
+    C -- 예 --> D["SurlService → SurlRepository: 대상 조회"]
+    D --> E{"SURL이 있는가?"}
+    E -- 아니오 --> N["404 · 대상 없음"]
+    E -- 예 --> F["AuthService: 회원 ID와 작성자 ID 비교"]
+    F --> G{"본인 자료인가?"}
+    G -- 아니오 --> X["403 · 권한 없음"]
+    G -- 예 --> H["Service: SurlDto 생성"]
+    H --> I["Controller: data.item 구성 → 200 JSON 응답"]
 ```
 
-| 구성 요소 | 맡은 일 |
-| --- | --- |
-| [ApiV1SurlController](./src/main/java/com/ll/demo03/ApiV1SurlController.java) | API 경로·입력 검증, Rq와 서비스 호출, 응답 구성 |
-| [Rq](./src/main/java/com/ll/demo03/global/rq/Rq.java) | 요청 파라미터로 인증, 요청별 결과 캐싱 |
-| [SurlService](./src/main/java/com/ll/demo03/SurlService.java) | CRUD 처리·트랜잭션·DTO 변환 |
-| [AuthService](./src/main/java/com/ll/demo03/AuthService.java) | 조회·수정·삭제의 공통 소유권 검사 |
-| [SurlRepository](./src/main/java/com/ll/demo03/SurlRepository.java) | SURL 저장·조회·삭제, 작성자별 목록 조회 |
+Rq의 회원 조회는 `MemberService → MemberRepository`를 거친다.
+SURL은 **대상 조회 → 권한 검사 → DTO 변환** 순서이며, DB 작업은 서비스 트랜잭션 안에서 처리한다.
+응답의 HTTP 상태는 ResponseAspect가 반영한다.
 
-수정·삭제도 대상을 먼저 조회하고 권한을 검사한다.
-등록은 인증한 회원을 작성자로 저장하고, 목록은 작성자 조건으로 조회한다.
-이 두 작업은 AuthService의 단건 소유권 검사를 거치지 않는다.
+| 작업 | 처리 방식 |
+| --- | --- |
+| 등록 | 인증한 회원을 작성자로 저장 |
+| 목록 | 본인 자료만 ID 역순으로 조회 |
+| 단건 조회·수정·삭제 | 대상을 찾고 AuthService로 소유권 검사 |
+| 공유 링크 `/g/{id}` | 인증 없이 원본 URL로 이동·조회수 증가 |
+
+핵심 코드: [Controller](./src/main/java/com/ll/demo03/ApiV1SurlController.java) · [Rq](./src/main/java/com/ll/demo03/global/rq/Rq.java) · [Service](./src/main/java/com/ll/demo03/SurlService.java) · [AuthService](./src/main/java/com/ll/demo03/AuthService.java)
 
 ## Rq에서 아이디·비밀번호 확인하기
 
@@ -78,29 +79,43 @@ member = candidate;
 return member;
 ```
 
-회원이 존재한다는 이유만으로 인증하지 않는다. 비밀번호까지 일치해야 성공 결과를 저장한다.
-아이디·비밀번호 누락, 없는 회원, 비밀번호 불일치도 인증 실패로 캐시한다.
-DB 장애 같은 일반 예외는 인증 실패로 저장하지 않는다.
+비밀번호까지 일치한 회원만 성공 캐시에 넣는다.
+인증정보 누락·없는 회원·비밀번호 불일치도 실패로 캐시하지만, DB 장애 같은 일반 예외는 캐시하지 않는다.
 
-같은 요청에서 `getMember()`를 다시 호출하면 회원 조회와 비밀번호 비교를 반복하지 않는다.
-캐시는 Rq의 인스턴스 필드에만 있으므로 다른 요청이나 다른 회원과 공유되지 않는다.
-**요청별 캐싱은 로그인 상태 유지가 아니다.** 다음 요청에서도 인증정보가 필요하다.
+### 캐시는 어디까지 유지될까?
+
+```mermaid
+sequenceDiagram
+    participant A as HTTP 요청 A
+    participant R as 요청 A의 Rq
+    participant M as MemberService
+    participant B as HTTP 요청 B
+    participant S as 요청 B의 새 Rq
+    A->>R: 첫 getMember()
+    R->>M: 아이디로 회원 조회
+    M-->>R: 회원 반환
+    Note over R: 비밀번호 검증 후 성공 또는 인증 실패 저장
+    A->>R: 같은 요청에서 다시 getMember()
+    R-->>A: 저장한 Member 반환 또는 같은 인증 예외 발생
+    Note over A,R: 요청 A 종료 · 캐시 공유 없음
+    B->>S: getMember()
+    Note over S: 빈 캐시에서 다시 인증 시작
+```
+
+**같은 요청에서는 중복 조회를 줄이고, 다음 요청에서는 다시 인증한다.**
+RequestScope 캐시는 로그인 상태를 유지하는 세션이 아니다.
 
 ## 응답과 DB 처리에서 달라진 점
 
-Entity 대신 `SurlDto`로 공개할 값만 반환한다.
-ID·생성일·수정일·작성자 ID·작성자 이름·설명·원본 URL·조회수를 담고, Member 객체와 비밀번호는 넣지 않는다.
-작성자 이름은 회원의 nickname을 사용한다. 회원가입 응답도 기존 DTO를 유지했다.
+| 개념 | 이번 코드에서 적용한 방식 |
+| --- | --- |
+| DTO | SurlDto에 공개할 값만 복사. Member 객체·비밀번호 제외 |
+| OSIV 끄기 | 서비스 밖에서 추가 DB 조회가 필요 없도록 트랜잭션 안에서 DTO 완성 |
+| 트랜잭션 | 조회는 읽기 전용, 등록·수정·삭제·조회수 증가는 쓰기 작업으로 처리 |
+| Dirty Checking | 관리 중인 엔티티의 값을 바꿔 수정 반영. save 재호출 없이 flush 후 응답 |
 
-`spring.jpa.open-in-view=false`로 설정하고, 필요한 작성자 정보와 DTO 변환을 서비스 트랜잭션 안에서 처리한다.
-OSIV는 서비스 밖에서도 DB 객체를 추가 조회할 수 있게 하는 기능이다.
-이를 끈 상태에서도 응답을 만들 수 있도록 DB 작업 범위를 서비스에 모았다.
-강의의 Controller 트랜잭션 대신 이전 주차의 서비스 계층 구조를 유지한 부분이다.
-
-조회는 읽기 전용, 등록·수정·삭제는 쓰기 트랜잭션을 사용한다.
-수정은 관리 중인 엔티티의 값을 바꾸면 DB에 반영되는 **Dirty Checking**을 이용한다.
-`save()`를 다시 호출하지 않으며, 수정 응답에는 `flush()` 후 갱신된 수정일까지 담는다.
-공개 링크의 조회와 조회수 증가도 하나의 쓰기 트랜잭션으로 묶었다.
+SurlDto에는 ID·생성일·수정일·작성자 ID·nickname·설명·URL·조회수가 담긴다.
+`spring.jpa.open-in-view=false`를 사용하며, 강의의 Controller 트랜잭션 대신 기존 서비스 계층 구조를 유지했다.
 
 ## API 요청·응답
 
